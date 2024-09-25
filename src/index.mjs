@@ -27,11 +27,10 @@ app.get("/api/users", (request, response) => {
   const {
     query: { filter, value },
   } = request;
-
-  if (!filter && !value) return response.send(users);
-
   if (filter && value)
     return response.send(users.filter((user) => user[filter].includes(value)));
+
+  return response.send(users);
 });
 
 app.get("/api/users/:id", (request, response) => {
