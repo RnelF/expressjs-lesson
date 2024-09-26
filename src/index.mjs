@@ -28,7 +28,7 @@ app.get("/api/users", (request, response) => {
   console.log(request.query);
   const {
     query: { filter, value },
-  } = request;
+  } = request; //distructuring
   if (filter && value)
     return response.send(users.filter((user) => user[filter].includes(value)));
 
@@ -37,7 +37,7 @@ app.get("/api/users", (request, response) => {
 
 app.post("/api/users", (request, response) => {
   console.log(request.body);
-  const { body } = request;
+  const { body } = request; //distructuring
   const newUser = { id: users[users.length - 1].id + 1, ...body };
   users.push(newUser);
   return response.status(201).send(newUser);
@@ -58,4 +58,22 @@ app.get("/api/users/:id", (request, response) => {
 
 app.get("/api/products", (request, response) => {
   response.send([{ id: 123, name: " Nuggets", price: 12.99 }]);
+});
+
+app.put("/api/users/:id", (request, response) => {
+  const {
+    body,
+    params: { id },
+  } = request;
+
+  const parsedId = parseInt(id);
+
+  if (isNaN(parsedId)) return response.send(400);
+
+  const findUserIndex = users.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(404);
+
+  users[findUserIndex] = { id: parsedId, ...body };
+  return response.sendStatus(200);
 });
