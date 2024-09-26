@@ -77,3 +77,22 @@ app.put("/api/users/:id", (request, response) => {
   users[findUserIndex] = { id: parsedId, ...body };
   return response.sendStatus(200);
 });
+
+app.patch("/api/users/:id", (request, response) => {
+  const {
+    body,
+    params: { id }, //destructuring the id or only getting the Id
+  } = request;
+
+  const parsedId = parseInt(id);
+
+  if (isNaN(parsedId)) return response.send(400);
+
+  const findUserIndex = users.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(404);
+
+  users[findUserIndex] = { ...users[findUserIndex], ...body }; //overriding what we will only update
+
+  return response.sendStatus(200);
+});
