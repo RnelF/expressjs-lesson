@@ -1,4 +1,5 @@
 import express, { request, response } from "express";
+import { query, validationResult } from "express-validator";
 
 const app = express();
 app.use(express.json());
@@ -54,16 +55,24 @@ app.get(
   }
 );
 
-app.get("/api/users", (request, response) => {
-  console.log(request.query);
-  const {
-    query: { filter, value },
-  } = request; //distructuring
-  if (filter && value)
-    return response.send(users.filter((user) => user[filter].includes(value)));
+app.get(
+  "/api/users",
+  query("filter").isString().notEmpty(),
+  (request, response) => {
+    console.log(request["express-validator#contexts"]);
+    const result = validationResult(request);
+    console.log(result);
+    const {
+      query: { filter, value },
+    } = request; //distructuring
+    if (filter && value)
+      return response.send(
+        users.filter((user) => user[filter].includes(value))
+      );
 
-  return response.send(users);
-});
+    return response.send(users);
+  }
+);
 
 app.post("/api/users", (request, response) => {
   console.log(request.body);
