@@ -1,5 +1,5 @@
 import express, { request, response } from "express";
-import { query, validationResult } from "express-validator";
+import { query, validationResult, body } from "express-validator";
 
 const app = express();
 app.use(express.json());
@@ -79,13 +79,27 @@ app.get(
   }
 );
 
-app.post("/api/users", (request, response) => {
-  console.log(request.body);
-  const { body } = request; //distructuring
-  const newUser = { id: users[users.length - 1].id + 1, ...body };
-  users.push(newUser);
-  return response.status(201).send(newUser);
-});
+app.post(
+  "/api/users",
+  body("username")
+    .notEmpty()
+    .withMessage("username not be empty")
+    .isLength({ min: 5, max: 32 })
+    .withMessage(
+      "username must be atleast 5 characters with a max of 32 characters"
+    )
+    .isString()
+    .withMessage("username name must be a string"),
+  (request, response) => {
+    const result = validationResult(request);
+    console.log(result);
+    console.log(request.body);
+    const { body } = request; //distructuring
+    const newUser = { id: users[users.length - 1].id + 1, ...body };
+    users.push(newUser);
+    return response.status(201).send(newUser);
+  }
+);
 
 /////////////////////
 app.get("/api/users/:id", resolveIndexByUserID, (request, response) => {
