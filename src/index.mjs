@@ -8,6 +8,22 @@ const loggingMiddleware = (request, response, next) => {
   next();
 };
 
+const resolveIndexByUserID = (request, response, next) => {
+  const {
+    params: { id }, //destructuring the id or only getting the Id
+  } = request;
+
+  const parsedId = parseInt(id);
+
+  if (isNaN(parsedId)) return response.send(400);
+
+  const findUserIndex = users.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(404);
+  request.findUserIndex = findUserIndex;
+  next();
+};
+
 app.use(loggingMiddleware);
 
 const PORT = process.env.PORT || 3000;
@@ -74,21 +90,10 @@ app.get("/api/products", (request, response) => {
   response.send([{ id: 123, name: " Nuggets", price: 12.99 }]);
 });
 
-app.put("/api/users/:id", (request, response) => {
-  const {
-    body,
-    params: { id },
-  } = request;
+app.put("/api/users/:id", resolveIndexByUserID, (request, response) => {
+  const { body, findUserIndex } = request;
 
-  const parsedId = parseInt(id);
-
-  if (isNaN(parsedId)) return response.send(400);
-
-  const findUserIndex = users.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex === -1) return response.sendStatus(404);
-
-  users[findUserIndex] = { id: parsedId, ...body };
+  users[findUserIndex] = { id: users[findUserIndex].id, ...body };
   return response.sendStatus(200);
 });
 
