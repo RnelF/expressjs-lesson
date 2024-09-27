@@ -57,7 +57,12 @@ app.get(
 
 app.get(
   "/api/users",
-  query("filter").isString().notEmpty(),
+  query("filter")
+    .isString()
+    .notEmpty()
+    .withMessage("must not be empty")
+    .isLength({ min: 3, max: 10 })
+    .withMessage("must be atleast 3-10 char"),
   (request, response) => {
     console.log(request["express-validator#contexts"]);
     const result = validationResult(request);
