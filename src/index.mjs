@@ -73,18 +73,15 @@ app.post("/api/users", (request, response) => {
   return response.status(201).send(newUser);
 });
 
-app.get("/api/users/:id", (request, response) => {
-  console.log(request.params);
-  const parsedId = parseInt(request.params.id);
-  console.log(parsedId);
-  if (isNaN(parsedId)) {
-    return response.status(400).send("Bad Request. Invalid ID");
-  }
-
-  const findUser = users.find((user) => user.id === parsedId);
+/////////////////////
+app.get("/api/users/:id", resolveIndexByUserID, (request, response) => {
+  const { findUserIndex } = request;
+  const findUser = users[findUserIndex];
   if (!findUser) return response.sendStatus(404);
   return response.send(findUser);
 });
+
+/////////////////
 
 app.get("/api/products", (request, response) => {
   response.send([{ id: 123, name: " Nuggets", price: 12.99 }]);
@@ -97,35 +94,19 @@ app.put("/api/users/:id", resolveIndexByUserID, (request, response) => {
   return response.sendStatus(200);
 });
 
-app.patch("/api/users/:id", (request, response) => {
+app.patch("/api/users/:id", resolveIndexByUserID, (request, response) => {
   const {
     body,
-    params: { id }, //destructuring the id or only getting the Id
+    findUserIndex, //destructuring the id or only getting the Id
   } = request;
-
-  const parsedId = parseInt(id);
-
-  if (isNaN(parsedId)) return response.send(400);
-
-  const findUserIndex = users.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex === -1) return response.sendStatus(404);
 
   users[findUserIndex] = { ...users[findUserIndex], ...body }; //overriding what we will only update
 
   return response.sendStatus(200);
 });
 
-app.delete("/api/users/:id", (request, response) => {
-  const {
-    params: { id },
-  } = request;
-
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return response.sendStatus(400);
-
-  const findUserIndex = users.findIndex((user) => user.id === parsedId);
-  if (findUserIndex === -1) return response.sendStatus(404);
+app.delete("/api/users/:id", resolveIndexByUserID, (request, response) => {
+  const { findUserIndex } = request;
   users.splice(findUserIndex, 1);
 
   return response.sendStatus(200);
