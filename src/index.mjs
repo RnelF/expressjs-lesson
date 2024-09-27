@@ -3,6 +3,13 @@ import express, { request, response } from "express";
 const app = express();
 app.use(express.json());
 
+const loggingMiddleware = (request, response, next) => {
+  console.log(`${request.method} - ${request.url}`);
+  next();
+};
+
+app.use(loggingMiddleware);
+
 const PORT = process.env.PORT || 3000;
 
 const users = [
@@ -20,9 +27,16 @@ app.listen(PORT, () => {
   console.log(`Running on the Port ${PORT}`);
 });
 
-app.get("/", (request, response) => {
-  response.status(201).send({ hello: "Hello" });
-});
+app.get(
+  "/",
+  (request, response, next) => {
+    console.log("Base URL");
+    next();
+  },
+  (request, response) => {
+    response.status(201).send({ hello: "Hello" });
+  }
+);
 
 app.get("/api/users", (request, response) => {
   console.log(request.query);
