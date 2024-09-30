@@ -67,6 +67,7 @@ app.get(
     console.log(request["express-validator#contexts"]);
     const result = validationResult(request);
     console.log(result);
+
     const {
       query: { filter, value },
     } = request; //distructuring
@@ -81,19 +82,26 @@ app.get(
 
 app.post(
   "/api/users",
-  body("username")
-    .notEmpty()
-    .withMessage("username not be empty")
-    .isLength({ min: 5, max: 32 })
-    .withMessage(
-      "username must be atleast 5 characters with a max of 32 characters"
-    )
-    .isString()
-    .withMessage("username name must be a string"),
+  [
+    body("username")
+      .notEmpty()
+      .withMessage("username not be empty")
+      .isLength({ min: 5, max: 32 })
+      .withMessage(
+        "username must be atleast 5 characters with a max of 32 characters"
+      )
+      .isString()
+      .withMessage("username name must be a string"),
+    body("displayName").notEmpty(),
+  ],
   (request, response) => {
     const result = validationResult(request);
     console.log(result);
     console.log(request.body);
+
+    if (!result.isEmpty())
+      return response.status(400).send({ errors: result.array() });
+
     const { body } = request; //distructuring
     const newUser = { id: users[users.length - 1].id + 1, ...body };
     users.push(newUser);
@@ -109,7 +117,7 @@ app.get("/api/users/:id", resolveIndexByUserID, (request, response) => {
   return response.send(findUser);
 });
 
-/////////////////
+/////////////////////
 
 app.get("/api/products", (request, response) => {
   response.send([{ id: 123, name: " Nuggets", price: 12.99 }]);
