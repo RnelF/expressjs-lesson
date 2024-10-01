@@ -1,5 +1,5 @@
 import express, { request, response } from "express";
-import { query, validationResult, body } from "express-validator";
+import { query, validationResult, body, matchedData } from "express-validator";
 
 const app = express();
 app.use(express.json());
@@ -102,8 +102,9 @@ app.post(
     if (!result.isEmpty())
       return response.status(400).send({ errors: result.array() });
 
-    const { body } = request; //distructuring
-    const newUser = { id: users[users.length - 1].id + 1, ...body };
+    const data = matchedData(request);
+
+    const newUser = { id: users[users.length - 1].id + 1, ...data };
     users.push(newUser);
     return response.status(201).send(newUser);
   }
