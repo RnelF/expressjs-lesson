@@ -7,6 +7,7 @@ import {
   checkSchema,
 } from "express-validator";
 import { createUserValidationSchema } from "./utils/validationSchemas.mjs";
+import { queryValidationSchema } from "./utils/querySchemas.mjs";
 
 const app = express();
 app.use(express.json());
@@ -64,12 +65,7 @@ app.get(
 
 app.get(
   "/api/users",
-  query("filter")
-    .isString()
-    .notEmpty()
-    .withMessage("must not be empty")
-    .isLength({ min: 3, max: 10 })
-    .withMessage("must be atleast 3-10 char"),
+  checkSchema(queryValidationSchema),
   (request, response) => {
     console.log(request["express-validator#contexts"]);
     const result = validationResult(request);
