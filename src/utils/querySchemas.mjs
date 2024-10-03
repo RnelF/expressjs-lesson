@@ -1,29 +1,27 @@
-import { query } from "express";
-
 export const queryValidationSchema = {
-  query: {
-    filter: {
-      isString: true,
-      notEmpty: {
-        errorMessage: "Must not be empty",
-      },
-      isLength: {
-        options: {
-          min: 5,
-          max: 32,
-        },
-        errorMessage: "must be atleast 3-10 Characters",
-      },
+  filter: {
+    isString: {
+      errorMessage: "Filter must be a string",
     },
-    value: {
-      isString: true,
-      notEmpty: {
-        errorMessage: "value must not be Empty",
-      },
+    notEmpty: {
+      errorMessage: "Filter must not be empty",
+    },
+    isLength: {
+      options: { min: 1, max: 10 },
+      errorMessage: "Filter must be between 1 and 10 characters",
+    },
+  },
+  value: {
+    optional: true,
+    isString: {
+      errorMessage: "Value must be a string",
+    },
+    notEmpty: {
+      errorMessage: "Value must not be empty",
     },
     isLength: {
       options: { min: 1, max: 32 },
-      errorMessage: "Value must be 1 to 32 Characters",
+      errorMessage: "Value must be between 1 and 32 characters",
     },
   },
 };

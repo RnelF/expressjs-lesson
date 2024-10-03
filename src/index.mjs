@@ -67,17 +67,21 @@ app.get(
   "/api/users",
   checkSchema(queryValidationSchema),
   (request, response) => {
-    console.log(request["express-validator#contexts"]);
-    const result = validationResult(request);
-    console.log(result);
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) {
+      return response.status(400).json({ errors: errors.array() });
+    }
 
     const {
       query: { filter, value },
-    } = request; //distructuring
-    if (filter && value)
-      return response.send(
-        users.filter((user) => user[filter].includes(value))
+    } = request;
+
+    if (filter && value) {
+      const filteredUsers = users.filter((user) =>
+        user[filter]?.includes(value)
       );
+      return response.send(filteredUsers);
+    }
 
     return response.send(users);
   }
