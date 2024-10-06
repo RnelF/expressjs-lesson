@@ -6,7 +6,7 @@ import {
   matchedData,
   checkSchema,
 } from "express-validator";
-import { createUserValidationSchema } from "./utils/validationSchemas.mjs";
+
 import usersRouter from "./routes/users.mjs";
 import { users } from "./utils/constants.mjs";
 
@@ -51,25 +51,6 @@ app.get(
   },
   (request, response) => {
     response.status(201).send({ hello: "Hello" });
-  }
-);
-
-app.post(
-  "/api/users",
-  checkSchema(createUserValidationSchema),
-  (request, response) => {
-    const result = validationResult(request);
-    console.log(result);
-    console.log(request.body);
-
-    if (!result.isEmpty())
-      return response.status(400).send({ errors: result.array() });
-
-    const data = matchedData(request);
-
-    const newUser = { id: users[users.length - 1].id + 1, ...data };
-    users.push(newUser);
-    return response.status(201).send(newUser);
   }
 );
 

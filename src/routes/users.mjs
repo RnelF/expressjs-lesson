@@ -1,6 +1,12 @@
 import { Router } from "express";
-import { query, validationResult } from "express-validator";
+import {
+  query,
+  validationResult,
+  checkSchema,
+  matchedData,
+} from "express-validator";
 import { users } from "../utils/constants.mjs";
+import { createUserValidationSchema } from "./utils/validationSchemas.mjs";
 
 const router = Router();
 
@@ -26,6 +32,25 @@ router.get(
       );
 
     return response.send(users);
+  }
+);
+
+router.post(
+  "/api/users",
+  checkSchema(createUserValidationSchema),
+  (request, response) => {
+    const result = validationResult(request);
+    console.log(result);
+    console.log(request.body);
+
+    if (!result.isEmpty())
+      return response.status(400).send({ errors: result.array() });
+
+    const data = matchedData(request);
+
+    const newUser = { id: users[users.length - 1].id + 1, ...data };
+    users.push(newUser);
+    return response.status(201).send(newUser);
   }
 );
 
