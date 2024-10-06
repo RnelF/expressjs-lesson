@@ -7,10 +7,12 @@ import {
   checkSchema,
 } from "express-validator";
 import { createUserValidationSchema } from "./utils/validationSchemas.mjs";
-import { queryValidationSchema } from "./utils/querySchemas.mjs";
+import usersRouter from "./routes/users.mjs";
+import { users } from "./utils/constants.mjs";
 
 const app = express();
 app.use(express.json());
+app.use(usersRouter);
 
 const loggingMiddleware = (request, response, next) => {
   console.log(`${request.method} - ${request.url}`);
@@ -37,17 +39,6 @@ app.use(loggingMiddleware);
 
 const PORT = process.env.PORT || 3000;
 
-const users = [
-  { id: 1, username: "Arnel", displayName: "Rnel" },
-  { id: 2, username: "Dave", displayName: "Dave" },
-  { id: 3, username: "Raul", displayName: "Raul" },
-  { id: 4, username: "Niko", displayName: "Niks" },
-  { id: 5, username: "Jomar", displayName: "Jom" },
-  { id: 6, username: "Carl", displayName: "CJ" },
-  { id: 7, username: "Biggy", displayName: "Big" },
-  { id: 8, username: "James", displayName: "Jim" },
-];
-
 app.listen(PORT, () => {
   console.log(`Running on the Port ${PORT}`);
 });
@@ -60,47 +51,6 @@ app.get(
   },
   (request, response) => {
     response.status(201).send({ hello: "Hello" });
-  }
-);
-
-app.get(
-  "/api/users",
-  checkSchema(queryValidationSchema),
-  (request, response) => {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
-    }
-
-    const { filter } = request.query;
-
-    // Check if filter exists
-    if (filter) {
-      const validFilters = ["id", "username", "displayName"]; // Valid fields for filtering
-
-      // Try to find a match in the users array
-      const filteredUsers = users.filter((user) =>
-        validFilters.some((key) => {
-          const value = user[key];
-          if (typeof value === "string") {
-            // Use includes for string fields
-            return value.toLowerCase().includes(filter.toLowerCase());
-          } else if (typeof value === "number") {
-            // Use equality check for number fields like id
-            return value === parseInt(filter);
-          }
-          return false;
-        })
-      );
-
-      if (filteredUsers.length === 0) {
-        return response.status(404).send({ message: "No users found" });
-      }
-
-      return response.send(filteredUsers);
-    }
-
-    return response.send(users); // Return all users if no filter is provided
   }
 );
 
