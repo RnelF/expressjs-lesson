@@ -72,18 +72,35 @@ app.get(
       return response.status(400).json({ errors: errors.array() });
     }
 
-    const {
-      query: { filter, value },
-    } = request;
+    const { filter } = request.query;
 
-    if (filter && value) {
+    // Check if filter exists
+    if (filter) {
+      const validFilters = ["id", "username", "displayName"]; // Valid fields for filtering
+
+      // Try to find a match in the users array
       const filteredUsers = users.filter((user) =>
-        user[filter]?.includes(value)
+        validFilters.some((key) => {
+          const value = user[key];
+          if (typeof value === "string") {
+            // Use includes for string fields
+            return value.toLowerCase().includes(filter.toLowerCase());
+          } else if (typeof value === "number") {
+            // Use equality check for number fields like id
+            return value === parseInt(filter);
+          }
+          return false;
+        })
       );
+
+      if (filteredUsers.length === 0) {
+        return response.status(404).send({ message: "No users found" });
+      }
+
       return response.send(filteredUsers);
     }
 
-    return response.send(users);
+    return response.send(users); // Return all users if no filter is provided
   }
 );
 
