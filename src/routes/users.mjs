@@ -6,7 +6,7 @@ import {
   matchedData,
 } from "express-validator";
 import { users } from "../utils/constants.mjs";
-import { createUserValidationSchema } from "./utils/validationSchemas.mjs";
+import { createUserValidationSchema } from "../utils/validationSchemas.mjs";
 
 const router = Router();
 
