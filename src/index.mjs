@@ -1,14 +1,8 @@
 import express, { request, response } from "express";
-import {
-  query,
-  validationResult,
-  body,
-  matchedData,
-  checkSchema,
-} from "express-validator";
 
 import usersRouter from "./routes/users.mjs";
 import { users } from "./utils/constants.mjs";
+import { resolveIndexByUserID } from "./utils/middleWare.mjs";
 
 const app = express();
 app.use(express.json());
@@ -16,22 +10,6 @@ app.use(usersRouter);
 
 const loggingMiddleware = (request, response, next) => {
   console.log(`${request.method} - ${request.url}`);
-  next();
-};
-
-const resolveIndexByUserID = (request, response, next) => {
-  const {
-    params: { id }, //destructuring the id or only getting the Id
-  } = request;
-
-  const parsedId = parseInt(id);
-
-  if (isNaN(parsedId)) return response.send(400);
-
-  const findUserIndex = users.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex === -1) return response.sendStatus(404);
-  request.findUserIndex = findUserIndex;
   next();
 };
 
@@ -55,12 +33,6 @@ app.get(
 );
 
 /////////////////////
-app.get("/api/users/:id", resolveIndexByUserID, (request, response) => {
-  const { findUserIndex } = request;
-  const findUser = users[findUserIndex];
-  if (!findUser) return response.sendStatus(404);
-  return response.send(findUser);
-});
 
 /////////////////////
 
