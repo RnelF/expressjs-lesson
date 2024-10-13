@@ -13,6 +13,9 @@ app.listen(PORT, () => {
 });
 
 app.get("/", (request, response) => {
-  response.cookie("Hello", "World", { maxAge: 60000 * 60 });
+  response.cookie("Hello", "World", {
+    maxAge:
+      60000 * 60 * 2 /*60secs multiply by 60 = 1 hour multiply again by 2 */,
+  });
   response.status(201).send({ msg: "Hello" });
 });
